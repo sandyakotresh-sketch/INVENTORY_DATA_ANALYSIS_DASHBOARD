@@ -1,0 +1,72 @@
+create database test_env
+
+use test_env
+
+
+select * from [dbo].[Products]
+
+select* from [dbo].[Test+Environment+Inventory+Dataset]
+
+select  distinct product_id from [dbo].[Products]
+
+-----TEST ENVIRONMENT----------------
+ select * into new_table1 from 
+(select a.[Order_Date_DD_MM_YYYY],
+a.product_id,a.availability,a.demand,b.product_name,b.unit_price
+
+from [dbo].[Test+Environment+Inventory+Dataset]  as a
+left join products as b on a.product_id=b.product_id) x
+
+
+select * from new_table1
+
+----------------------------------------creating production database--------------------------------------------------
+
+create database PROD
+
+use PROD
+
+SELECT * FROM[dbo].[Products]
+
+SELECT * FROM[dbo].[Prod+Env+Inventory+Dataset]
+
+------------------SHIFT THE REPORT FROM TEST ENVIRONMENT TO PRODUCTION ENVIRONMENT-------------------
+
+SELECT DISTINCT[Order_Date_DD_MM_YYYY] 
+FROM [Prod+Env+Inventory+Dataset]
+WHERE Order_Date_DD_MM_YYYY IS NULL OR Order_Date_DD_MM_YYYY=''
+
+
+SELECT DISTINCT[Product_ID]
+FROM [Prod+Env+Inventory+Dataset]
+--WHERE Order_Date_DD_MM_YYYY IS NULL OR Order_Date_DD_MM_YYYY=''
+
+---THE PROBLEM IS WE ARE HAVING THE 2 ROWS EXTRA BUT WE WANT TO MAKE THE REPORT SO WE ARE UPDATING IT (IT IS NIT IUR JOB IT IS THE DATA ENGINEER JOB )
+
+--PRODUCT ID 21 IS NTG BUT 7 ONLY----
+--PRODUCT ID 22 IS NTG BUT 11 ONLY----
+
+UPDATE [Prod+Env+Inventory+Dataset]
+SET Product_ID=7 WHERE Product_ID=21
+
+
+UPDATE [Prod+Env+Inventory+Dataset]
+SET Product_ID=11 WHERE Product_ID=22
+
+SELECT DISTINCT[Product_ID]
+FROM [Prod+Env+Inventory+Dataset] ORDER BY Product_ID
+
+SELECT DISTINCT [Availability]
+FROM [dbo].[Prod+Env+Inventory+Dataset]
+
+SELECT DISTINCT [Demand] 
+FROM [dbo].[Prod+Env+Inventory+Dataset]
+
+-------------------------------------------------------------------------
+
+ select * into new_table from 
+(select a.[Order_Date_DD_MM_YYYY],
+a.product_id,a.availability,a.demand,b.product_name,b.unit_price
+FROM [Prod+Env+Inventory+Dataset]as a left join products as b on a.product_id=b.product_id) x
+
+SELECT * FROM new_table
